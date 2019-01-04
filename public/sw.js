@@ -171,7 +171,7 @@ self.addEventListener('push', e => {
             vibrate: [500,110,500,110,450,110,200,110,170,40,450,110,200,110,170,40,500],
             openUrl: '/',
             data: {
-                url: 'https://google.com',
+                url: '/', //'https://google.com',
                 id: data.usuario
             },
             actions: [
@@ -203,6 +203,27 @@ self.addEventListener('notificationclick', e => {
     const action = e.action;
 
     console.log('NotificationClick: ',{notification, action});
+    
+    const respuesta = clients.matchAll()
+                        .then(clientes => {
+                            console.log('NotificationClick: Llega 1');
+                            let cliente = clientes.find ( c => {
+                                return c.visibilityState === 'visible';
+                            });
 
-    notification.close();
+                            if(cliente!== undefined){
+                                console.log('NotificationClick: Llega 2');
+                                cliente.navigate(notification.data.url);
+                                cliente.focus();
+                            }
+                            else{
+                                clients.openWindow(notification.data.url);
+                            }
+
+                            return notification.close();
+                        });
+
+    
+
+    e.waitUntil(respuesta);
 });
